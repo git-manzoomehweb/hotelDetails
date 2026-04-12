@@ -2881,7 +2881,6 @@ const renderAction = (element) => {
 
 const renderAvailableRooms = async (element) => {
   try {
-    // --- language detect (fa vs en) ---
     const lang = getCurrentLang()
 
     if (
@@ -2891,15 +2890,14 @@ const renderAvailableRooms = async (element) => {
       (element.msg && element.msg === 'no data')
     ) {
       const sectionRooms = document.querySelector('#section-rooms')
-
       if (sectionRooms) {
         sectionRooms.insertAdjacentHTML(
           'afterend',
           `
-  <div class="book-text-zinc-900 book-text-sm book-mt-4">
-  ${translate("no_rooms_available")}
-  </div>
-`,
+          <div class="book-text-zinc-900 book-text-sm book-mt-4">
+            ${translate("no_rooms_available")}
+          </div>
+          `,
         )
       }
       return
@@ -2909,27 +2907,49 @@ const renderAvailableRooms = async (element) => {
 
     const providerIdResult = renderProviderWithCookie(
       element.id?.provider?.provider_id
-    );
-    
-    let spanHTML = '';
-    
+    )
+
+    let spanHTML = ''
     try {
-        const providerData = JSON.parse(providerIdResult || '{}');
-        if (providerData.name !== undefined && providerData.name !== null) {
-            spanHTML = `
-              <span class="book-bg-primary-900 book-text-white book-text-xs book-rounded-3xl book-py-1 book-px-4">
-                ${providerData.name}
-              </span>
-            `;
-        }
+      const providerData = JSON.parse(providerIdResult || '{}')
+      if (providerData.name !== undefined && providerData.name !== null) {
+        spanHTML = `
+          <span class="book-bg-primary-900 book-text-white book-text-xs book-rounded-3xl book-py-1 book-px-4">
+            ${providerData.name}
+          </span>
+        `
+      }
     } catch (error) {
-        // خطا را نادیده بگیر یا لاگ کن
-        console.warn('Provider parsing failed:', error);
+      console.warn('Provider parsing failed:', error)
     }
-    
 
     const { currency_cost_number, floatdigit } = getCurrencyUnitFromStorage()
     const currency_unit = renderUnit('')
+
+    const hiddenInputsCommon = `
+      ${renderOptionId(element)}
+      ${renderadults(element)}
+      ${renderchildwithbed(element)}
+      ${renderchildwithoutbed(element)}
+      ${renderinfant(element)}
+      ${renderroomid(element)}
+      ${renderid(element)}
+      ${renderproviderId(element)}
+      ${renderprovider(element)}
+      ${renderhotelidRooms(element)}
+      ${rendernightsRooms(element)}
+      ${rendersupplierRooms(element)}
+      <input type="hidden" value="${currency_unit}" name="rate-unit" class="rate-unit" />
+      <input type="hidden" value="${currency_cost_number}" name="rate-cost" class="rate-cost" />
+      <input type="hidden" value="${floatdigit}" name="rate-floatdigit" class="rate-floatdigit" />
+      <input type="hidden" value="${window.cmsData?.HotelDate}" name="Hotel-Date" />
+      <input type="hidden" value="${window.cmsData?.cityi}" name="cityid" />
+      <input type="hidden" value="${window.cmsData?.coHotel}" name="coHotel" />
+      <input type="hidden" value='${window.cmsData?.roomSearch}' name="roomSearch" />
+      <input type="hidden" value="${window.cmsData?.fdate}" name="fdate" />
+      <input type="hidden" value="${window.cmsData?.tdate}" name="tdate" />
+      <input type="hidden" value="${window.cmsData?.sid}" name="sid" />
+    `
 
     const roomsHtml = element.availablerooms
       .map((room, index) => {
@@ -2942,73 +2962,45 @@ const renderAvailableRooms = async (element) => {
 
         const paddingClass = index > 0 ? ' book-pt-6' : ''
 
-        const hiddenInputs = `
-  ${renderOptionId(element)}
-  ${renderadults(element)}
-  ${renderchildwithbed(element)}
-  ${renderchildwithoutbed(element)}
-  ${renderinfant(element)}
-  ${renderroomid(element)}
-  ${renderid(element)} 
-  ${renderproviderId(element)} 
-  ${renderprovider(element)} 
-  ${renderhotelidRooms(element)}
-  ${rendernightsRooms(element)} 
-  ${rendersupplierRooms(element)} 
-  <input type="hidden" value="${currency_unit}" name="rate-unit" class="rate-unit" /> 
-  <input type="hidden" value="${currency_cost_number}" name="rate-cost" class="rate-cost" /> 
-  <input type="hidden" value="${floatdigit}" name="rate-floatdigit" class="rate-floatdigit" /> 
-  <input type="hidden" value="${window.cmsData?.sid}" name="sid" />
-  <input type="hidden" value="${window.cmsData?.HotelDate}" name="Hotel-Date" />
-  <input type="hidden" value="${window.cmsData?.cityi}" name="cityid" /> 
-  <input type="hidden" value="${window.cmsData?.coHotel}" name="coHotel" /> 
-  <input type="hidden" value='${
-    window.cmsData?.roomSearch
-  }' name="roomSearch" /> 
-  <input type="hidden" value="${window.cmsData?.fdate}" name="fdate" /> 
-  <input type="hidden" value="${window.cmsData?.tdate}" name="tdate" />
-`
-
-        setActionForAllForms()
-
         return `
-  <div class="${paddingClass}">
-    <h3 class="book-text-zinc-900 book-mb-3">${roomName}</h3>
+          <div class="${paddingClass}">
+            <h3 class="book-text-zinc-900 book-mb-3">${roomName}</h3>
 
-    <div class="book-flex book-items-center book-gap-2">
-      <span class="book-bg-primary-50 book-text-primary-800 book-text-xs book-rounded-3xl book-py-1 book-px-3">
-        ${serviceLabel}
-      </span>
+            <div class="book-flex book-items-center book-gap-2">
+              <span class="book-bg-primary-50 book-text-primary-800 book-text-xs book-rounded-3xl book-py-1 book-px-3">
+                ${serviceLabel}
+              </span>
 
-      <span class="book-bg-specialcolor-1 book-text-specialcolor-2 book-text-xs book-rounded-3xl book-py-1 book-px-4">
-        ${availabilityLabel}
-      </span>
+              <span class="book-bg-specialcolor-1 book-text-specialcolor-2 book-text-xs book-rounded-3xl book-py-1 book-px-4">
+                ${availabilityLabel}
+              </span>
 
-      ${spanHTML}
+              ${spanHTML}
 
-      <button
-        type="button"
-        class="book-inline-flex book-items-center book-gap-1 book-text-blue-600 book-text-xs book-rounded-3xl book-py-1 book-px-3 hover:book-bg-blue-50 book-transition"
-        onclick="showRules(this,'${element.optionId}')"
-      >
-        <svg width="48" height="48">
-          <use href="/booking/images/sprite-hotelDetails-icons.svg#icon-document"></use>
-        </svg>
-        ${translate("room_rules")}
-      </button>
-    </div>
-
-      ${hiddenInputs}
-  </div>
-`
+              <button
+                type="button"
+                class="book-inline-flex book-items-center book-gap-1 book-text-blue-600 book-text-xs book-rounded-3xl book-py-1 book-px-3 hover:book-bg-blue-50 book-transition"
+                onclick="showRules(this,'${element.optionId}')"
+              >
+                <svg width="48" height="48">
+                  <use href="/booking/images/sprite-hotelDetails-icons.svg#icon-document"></use>
+                </svg>
+                ${translate("room_rules")}
+              </button>
+            </div>
+            ${index == 0 ? hiddenInputsCommon : ''}
+          </div>
+        `
       })
       .join('')
 
+    setActionForAllForms()
+
     return `
-<div class="book-flex-[2.3] book-flex book-flex-col book-justify-center book-gap-6 book-divide-y book-divide-dashed book-divide-zinc-300">
-${roomsHtml}
-</div>
-`
+      <div class="book-flex-[2.3] book-flex book-flex-col book-justify-center book-gap-6 book-divide-y book-divide-dashed book-divide-zinc-300">
+        ${roomsHtml}
+      </div>
+    `
   } catch (error) {
     console.error(`renderAvailableRooms: ${error.message}`)
     return ''
@@ -3054,7 +3046,6 @@ const renderAvailableRoomsMobile = async (element) => {
   <input type="hidden" value="${currency_unit}" name="rate-unit" class="rate-unit" /> 
   <input type="hidden" value="${currency_cost_number}" name="rate-cost" class="rate-cost" /> 
   <input type="hidden" value="${floatdigit}" name="rate-floatdigit" class="rate-floatdigit" /> 
-  <input type="hidden" value="${window.cmsData?.sid}" name="sid" />
   <input type="hidden" value="${window.cmsData?.HotelDate}" name="Hotel-Date" />
   <input type="hidden" value="${window.cmsData?.cityi}" name="cityid" /> 
   <input type="hidden" value="${window.cmsData?.coHotel}" name="coHotel" /> 
@@ -3063,7 +3054,10 @@ const renderAvailableRoomsMobile = async (element) => {
   }' name="roomSearch" /> 
   <input type="hidden" value="${window.cmsData?.fdate}" name="fdate" /> 
   <input type="hidden" value="${window.cmsData?.tdate}" name="tdate" />
+  <input type="hidden" value="${window.cmsData?.sid}" name="sid" />
         `
+
+
 
         return `
             <div class="${paddingClass}">
@@ -3072,7 +3066,7 @@ const renderAvailableRoomsMobile = async (element) => {
                     <span class="book-bg-primary-50 book-text-primary-800 book-text-xs book-rounded-3xl book-py-1 book-px-3">${serviceLabel}</span>
                     <span class="book-bg-specialcolor-1 book-text-specialcolor-2 book-text-xs book-rounded-3xl book-py-1 book-px-4">${availabilityLabel}</span>
                 </div>
-                ${hiddenInputs}
+              ${index == 0 ? hiddenInputs : ''}
             </div>
         `
       })
@@ -3415,8 +3409,10 @@ const priceWithCurrency = (amount, opts = {}) => {
       }
     }
 
+    // Extract price from the "totalPrice" field in JSON data
+    const totalPrice = opts.commission + amount || 0; // Use opts.totalPrice (e.g., passed from JSON)
     const commission = opts.commission || 0
-    const payableAmount = commission > 0 ? a - commission : a
+    const payableAmount = commission > 0 ? amount : totalPrice
 
     if (opts.as === 'number') return x
 
@@ -3437,6 +3433,7 @@ const priceWithCurrency = (amount, opts = {}) => {
 
     const formattedPrice = nf.format(x)
     const formattedPayable = nf.format(payableAmount)
+    const formattedTotalPrice = nf.format(totalPrice);
 
     const commissionLabel =
       commission > 0
@@ -3452,15 +3449,13 @@ const priceWithCurrency = (amount, opts = {}) => {
     </div>`
         : ''
 
-    return `
-<div class="book-flex book-flex-col book-gap-1 book-items-center ${
-      window.innerWidth < 1024 ? 'book-mt-6' : ''
-    }">
-    <div class="book-flex book-items-center book-gap-1" data-original-price="${amount}">
+    return ` 
+<div class="book-flex book-flex-col book-gap-1 book-items-center ${window.innerWidth < 1024 ? 'book-mt-6' : ''}">
+    <div class="book-flex book-items-center book-gap-1" data-original-price="${formattedTotalPrice}">
         <h3 class="book-text-xs book-text-zinc-900">${translate("base_price")}</h3>
         <div class="price-unit-container book-flex book-items-center book-gap-1">
             <span class="book-price__check__currency book-text-zinc-900 book-font-bold book-text-xl">
-                ${formattedPrice}
+                ${formattedTotalPrice}
             </span>
             <span class="book-unit__check__currency book-text-zinc-500 book-text-xs book-font-normal">
                 ${unit}
@@ -3474,7 +3469,7 @@ const priceWithCurrency = (amount, opts = {}) => {
       commission > 0
         ? `
     <div class="book-flex book-items-center book-gap-1">
-        <span class="book-text-zinc-900 book-text-xs">$${translate("payable_amount")}</span>
+        <span class="book-text-zinc-900 book-text-xs">${translate("payable_amount")}</span>
         <span class="book-price__check__currency book-text-zinc-900 book-font-bold book-text-xl">
             ${formattedPayable}
         </span>
@@ -3484,8 +3479,7 @@ const priceWithCurrency = (amount, opts = {}) => {
     </div>`
         : ''
     }
-</div>
-`
+</div>`
   } catch {
     return opts.as === 'number' ? 0 : '0'
   }
@@ -4129,13 +4123,19 @@ ${translate("loading_room_rules")}
     const dmnid =
       window.cmsData && window.cmsData.dmnid ? Number(window.cmsData.dmnid) : 0
 
-    const mainproviderObj = {
-      provider_id: providerId,
-      dmnid: dmnid,
-    }
+    let formData = new FormData()
 
-    const formData = new FormData()
-    formData.append('mainprovider', JSON.stringify(mainproviderObj))
+    // اگر providerId برابر با 0 بود، فقط provider="0" ارسال کن
+    if (providerId === 0) {
+      formData.append('mainprovider', '0')
+    } else {
+      const mainproviderObj = {
+        provider_id: providerId,
+        dmnid: dmnid,
+      }
+      formData.append('mainprovider', JSON.stringify(mainproviderObj))
+    }
+    
     formData.append('optionId', optionId)
 
     const response = await fetch('/Client_Room_Rule.bc', {
@@ -5178,3 +5178,4 @@ function setupHotelMoreinfoModal() {
 }
 
 document.addEventListener('DOMContentLoaded', setupHotelMoreinfoModal)
+
